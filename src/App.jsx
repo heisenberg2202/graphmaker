@@ -1,35 +1,65 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useRef } from 'react';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+import './App.css';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [xValues, setXValues] = useState('');
+  const [yValues, setYValues] = useState('');
+  const chartRef = useRef(null);
+
+  const handlePlot = () => {
+    const x = xValues.split(',').map(Number);
+    const y = yValues.split(',').map(Number);
+
+    if (chartRef.current) {
+      chartRef.current.data.labels = x;
+      chartRef.current.data.datasets[0].data = y;
+      chartRef.current.update();
+    }
+  };
+
+  const data = {
+    labels: [],
+    datasets: [
+      {
+        label: 'My Graph',
+        data: [],
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1,
+      },
+    ],
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="App">
+      <h1 className = "Title">Graph Maker</h1>
+      <h2 className='subtitle'>Add x and y axis values</h2>
+      <div className='container'>
+        <input 
+          type="text" 
+          placeholder="X values (comma-separated)" 
+          value={xValues} 
+          className='inputbox'
+          onChange={(e) => setXValues(e.target.value)} 
+        />
+        <input 
+          type="text" 
+          placeholder="Y values (comma-separated)" 
+          value={yValues} 
+          className='inputbox'
+          onChange={(e) => setYValues(e.target.value)} 
+        />
+        <button className='plot-btn' onClick={handlePlot}>Plot</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+      <div className='chart'>
+        <Line ref={chartRef} data={data} />
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
